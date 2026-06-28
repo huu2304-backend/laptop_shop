@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Thêm Hãng Sản Xuất</title>
+</head>
+<body>
+<h2>Thêm Mới Hãng Sản Xuất</h2>
+<form th:action="@{/categories/add}" th:object="${category}" method="post">
+    <div>
+        <label>Tên Hãng:</label>
+        <input type="text" th:field="*{name}" />
+        <!-- Hiển thị lỗi validation nếu có -->
+        <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" style="color:red;"></span>
+    </div>
+    <div>
+        <label>Mô Tả:</label>
+        <textarea th:field="*{description}"></textarea>
+        <span th:if="${#fields.hasErrors('description')}" th:errors="*{description}" style="color:red;"></span>
+    </div>
+    <button type="submit">Lưu Hãng Sản Xuất</button>
+    <a th:href="@{/categories}">Hủy</a>
+</form>
+</body>
+</html>

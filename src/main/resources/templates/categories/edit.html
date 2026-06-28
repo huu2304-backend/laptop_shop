@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Sửa Hãng Sản Xuất</title>
+</head>
+<body>
+<h2>Sửa Hãng Sản Xuất</h2>
+<form th:action="@{/categories/edit/{id}(id=${category.id})}" th:object="${category}" method="post">
+
+    <input type="hidden" th:field="*{id}" />
+
+    <div>
+        <label>Tên Hãng:</label>
+        <input type="text" th:field="*{name}" />
+        <!-- Hiển thị lỗi validation nếu có -->
+        <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" style="color:red;"></span>
+    </div>
+
+    <div>
+        <label>Mô Tả:</label>
+        <textarea th:field="*{description}"></textarea>
+        <span th:if="${#fields.hasErrors('description')}" th:errors="*{description}" style="color:red;"></span>
+    </div>
+
+    <button type="submit">Cập Nhật Hãng</button>
+    <a th:href="@{/categories}">Hủy</a>
+</form>
+</body>
+</html>

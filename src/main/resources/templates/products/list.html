@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh Sách Sản Phẩm</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #dddddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f4f4f4;
+        }
+
+        .btn {
+            padding: 6px 12px;
+            text-decoration: none;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            color: #333;
+            background-color: #fff;
+            cursor: pointer;
+        }
+
+        .btn-add {
+            background-color: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+
+        .btn-edit {
+            background-color: #2196F3;
+            color: white;
+            border-color: #2196F3;
+        }
+
+        .btn-delete {
+            background-color: #f44336;
+            color: white;
+            border-color: #f44336;
+        }
+
+        .img-thumbnail {
+            width: 80px;
+            height: auto;
+            object-fit: cover;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 24px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            text-align: center;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-content h3 {
+            margin-top: 0;
+            color: #333;
+            font-size: 18px;
+        }
+
+        .modal-content p {
+            color: #666;
+            margin-bottom: 24px;
+            font-size: 15px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .btn-cancel {
+            background-color: #e0e0e0;
+            color: #333;
+            border-color: #ccc;
+        }
+        
+        .btn-cancel:hover {
+            background-color: #d5d5d5;
+        }
+    </style>
+</head>
+<body>
+<h2>Quản Lý Sản Phẩm (Product)</h2>
+<a th:href="@{/products/add}" class="btn btn-add">Thêm Mới Sản Phẩm</a>
+<a th:href="@{/categories}" class="btn">Quản Lý Danh Mục</a>
+<table>
+    <thead>
+    <tr>
+        <th>Hình Ảnh</th>
+        <th>Tên Sản Phẩm</th>
+        <th>Giá Cả</th>
+        <th>Số Lượng</th>
+        <th>Danh Mục</th>
+        <th>Mô Tả</th>
+        <th>Hành Động</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="product : ${products}">
+        <td>
+            <img th:src="${product.imageUrl}" class="img-thumbnail" alt="Product Image" />
+        </td>
+        <td th:text="${product.name}">Laptop Dell XPS</td>
+        <td th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">20,000,000 VNĐ</td>
+        <td th:text="${product.quantity}">10</td>
+        <td th:text="${product.categoryName}">Danh Mục</td>
+        <td th:text="${product.description}">Mô tả chi tiết sản phẩm</td>
+        <td>
+            <a th:href="@{/products/edit/{id}(id=${product.id})}" class="btn btn-edit">Sửa</a>
+            <a href="#" class="btn btn-delete" th:onclick="'showDeleteModal(' + ${product.id} + ')'">Xóa</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<!-- Hộp thoại xác nhận xóa (Custom Modal) -->
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <h3>Xác Nhận Xóa</h3>
+        <p>Bạn có chắc chắn muốn xóa sản phẩm này không?</p>
+        <div class="modal-buttons">
+            <button class="btn btn-cancel" onclick="closeModal()">Hủy</button>
+            <a id="confirmDeleteLink" href="#" class="btn btn-delete">Xóa</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showDeleteModal(id) {
+        const modal = document.getElementById('deleteModal');
+        const confirmLink = document.getElementById('confirmDeleteLink');
+        confirmLink.href = '/products/delete/' + id;
+        modal.style.display = 'flex';
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('deleteModal');
+        modal.style.display = 'none';
+    }
+
+    // Đóng modal khi click ra ngoài vùng modal content
+    window.onclick = function(event) {
+        const modal = document.getElementById('deleteModal');
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    }
+</script>
+</body>
+</html>

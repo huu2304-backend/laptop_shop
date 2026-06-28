@@ -1,13 +1,13 @@
-package com.laptop__shope;
+package com.laptop_shop;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class LaptopShopeApplication {
+public class LaptopShopApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(LaptopShopeApplication.class, args);
+        SpringApplication.run(LaptopShopApplication.class, args);
     }
 
 }
