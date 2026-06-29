@@ -7,6 +7,8 @@ import com.laptop_shop.service.FileStorageService;
 import com.laptop_shop.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -29,8 +31,11 @@ public class ProductController {
     }
 
     @GetMapping
-    public String listProducts(Model model) {
-        model.addAttribute("products", productService.findAll());
+    public String listProducts(Model model, @RequestParam(defaultValue = "") String name,
+                               @RequestParam(defaultValue = "0") int page,
+                               @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        model.addAttribute("products", productService.search(name, pageable));
         return "products/list";
     }
 
@@ -44,7 +49,7 @@ public class ProductController {
     public String addProduct(@Valid @ModelAttribute("product") ProductDTO productDTO,
                              BindingResult result,
                              @RequestParam("imageFile") MultipartFile imageFile) {
-        
+
         if (imageFile.isEmpty()) {
             result.rejectValue("imageUrl", "NotBlank", "Vui lòng chọn file ảnh cho sản phẩm");
         }

@@ -8,11 +8,15 @@ import com.laptop_shop.repository.CategoryRepository;
 import com.laptop_shop.repository.ProductRepository;
 import com.laptop_shop.service.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @Service
 @RequiredArgsConstructor
@@ -45,6 +49,16 @@ public class ProductServiceImpl implements ProductService {
             throw new ResourceNotFoundException("Product not found with id: " + id);
         }
         productRepository.deleteById(id);
+    }
+
+    @Override
+    public Page<ProductDTO> search(String name, Pageable pageable) {
+        if (name == null|| name.isBlank()) {
+            return productRepository.findAll( pageable)
+                    .map(this::convertToDTO);
+        }
+        return productRepository.findByNameContainingIgnoreCase(name, pageable)
+                .map(this::convertToDTO);
     }
 
     @Override
