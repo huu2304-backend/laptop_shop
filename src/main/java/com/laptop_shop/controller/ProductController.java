@@ -83,6 +83,9 @@ public class ProductController {
         if (!imageFile.isEmpty()) {
             String imageUrl = fileStorageService.storeFile(imageFile);
             productDTO.setImageUrl(imageUrl);
+        } else {
+            ProductDTO existingProduct = productService.findById(id);
+            productDTO.setImageUrl(existingProduct.getImageUrl());
         }
 
         productDTO.setId(id);
@@ -90,7 +93,7 @@ public class ProductController {
         return "redirect:/products";
     }
 
-    @PostMapping("/delete/{id}")
+    @GetMapping("/delete/{id}")
     public String deleteProduct(@PathVariable("id") Long id) {
         productService.deleteById(id);
         return "redirect:/products";

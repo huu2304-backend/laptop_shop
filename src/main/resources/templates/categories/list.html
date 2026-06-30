@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head>
     <meta charset="UTF-8">
@@ -35,6 +35,12 @@
             color: #333;
         }
 
+        .btn-add {
+            background-color: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+
         .alert {
             padding: 12px;
             margin-top: 15px;
@@ -54,10 +60,66 @@
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f8f9fa;
+            padding: 15px 30px;
+            border-bottom: 1px solid #e7e7e7;
+            margin: -40px -40px 40px -40px;
+        }
+        
+        .header-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin: 0;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-name {
+            font-weight: bold;
+            color: #555;
+        }
+
+        .btn-logout {
+            background-color: #ff9800;
+            color: white;
+            border-color: #ff9800;
+        }
+
+        .btn-logout:hover {
+            background-color: #e68a00;
+        }
     </style>
 </head>
 
 <body>
+
+    <div class="header">
+        <h1 class="header-title">Hệ Thống Quản Lý</h1>
+        <div class="user-info">
+            <!-- Hiển thị khi đã đăng nhập -->
+            <div sec:authorize="isAuthenticated()">
+                <span class="user-name">Xin chào, <span sec:authentication="name">User</span>!</span>
+                <form th:action="@{/logout}" method="post" style="display:inline; margin-left: 10px;">
+                    <button type="submit" class="btn btn-logout">Đăng Xuất</button>
+                </form>
+            </div>
+            <!-- Hiển thị khi chưa đăng nhập -->
+            <div sec:authorize="!isAuthenticated()">
+                <a th:href="@{/login}" class="btn">Đăng Nhập</a>
+                <a th:href="@{/register}" class="btn btn-add">Đăng Ký</a>
+            </div>
+        </div>
+    </div>
     <h2>Quản Lý Hãng Sản Xuất (Category)</h2>
 
     <!-- Banners hiển thị thông báo -->

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>Danh Sách Sản Phẩm</title>
@@ -139,11 +139,67 @@
         .btn-cancel:hover {
             background-color: #d5d5d5;
         }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f8f9fa;
+            padding: 15px 30px;
+            border-bottom: 1px solid #e7e7e7;
+            margin: -40px -40px 40px -40px; /* bù lại margin 40px của body */
+        }
+        
+        .header-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin: 0;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-name {
+            font-weight: bold;
+            color: #555;
+        }
+
+        .btn-logout {
+            background-color: #ff9800;
+            color: white;
+            border-color: #ff9800;
+        }
+
+        .btn-logout:hover {
+            background-color: #e68a00;
+        }
     </style>
 </head>
 <body>
+
+<div class="header">
+    <h1 class="header-title">Hệ Thống Quản Lý</h1>
+    <div class="user-info">
+        <!-- Hiển thị khi đã đăng nhập -->
+        <div sec:authorize="isAuthenticated()">
+            <span class="user-name">Xin chào, <span sec:authentication="name">User</span>!</span>
+            <form th:action="@{/logout}" method="post" style="display:inline; margin-left: 10px;">
+                <button type="submit" class="btn btn-logout">Đăng Xuất</button>
+            </form>
+        </div>
+        <!-- Hiển thị khi chưa đăng nhập -->
+        <div sec:authorize="!isAuthenticated()">
+            <a th:href="@{/login}" class="btn">Đăng Nhập</a>
+            <a th:href="@{/register}" class="btn btn-add">Đăng Ký</a>
+        </div>
+    </div>
+</div>
+
 <h2>Quản Lý Sản Phẩm (Product)</h2>
-<div style="margin-bottom: 20px;">
+<div style="margin-bottom: 20px;" sec:authorize="hasRole('ADMIN')">
     <a th:href="@{/products/add}" class="btn btn-add">Thêm Mới Sản Phẩm</a>
     <a th:href="@{/categories}" class="btn">Quản Lý Danh Mục</a>
 </div>
@@ -167,12 +223,12 @@
         <th>Số Lượng</th>
         <th>Danh Mục</th>
         <th>Mô Tả</th>
-        <th>Hành Động</th>
+        <th sec:authorize="hasRole('ADMIN')">Hành Động</th>
     </tr>
     </thead>
     <tbody>
     <tr th:if="${products.empty}">
-        <td colspan="7" style="text-align: center; padding: 20px; color: #666;">Không tìm thấy sản phẩm nào.</td>
+        <td th:colspan="${#authorization.expression('hasRole(''ADMIN'')')} ? 7 : 6" style="text-align: center; padding: 20px; color: #666;">Không tìm thấy sản phẩm nào.</td>
     </tr>
 
     <tr th:each="product : ${products.content}">
@@ -184,7 +240,7 @@
         <td th:text="${product.quantity}">10</td>
         <td th:text="${product.categoryName}">Danh Mục</td>
         <td th:text="${product.description}">Mô tả chi tiết sản phẩm</td>
-        <td>
+        <td sec:authorize="hasRole('ADMIN')">
             <a th:href="@{/products/edit/{id}(id=${product.id})}" class="btn btn-edit">Sửa</a>
             <a href="#" class="btn btn-delete" th:onclick="'showDeleteModal(' + ${product.id} + ')'">Xóa</a>
         </td>
