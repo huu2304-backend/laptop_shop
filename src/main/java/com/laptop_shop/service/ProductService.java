@@ -7,6 +7,8 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
+import java.math.BigDecimal;
+
 public interface ProductService {
     List<ProductDTO> findAll();
 
@@ -16,4 +18,6 @@ public interface ProductService {
 
     void deleteById(Long id);
     Page<ProductDTO> search(String name, Pageable pageable);
+    
+    Page<ProductDTO> advancedSearch(String name, Long categoryId, String priceRange, Pageable pageable);
 }

@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -25,36 +26,49 @@ public class ProductController {
     private final CategoryService categoryService;
     private final FileStorageService fileStorageService;
 
-    @ModelAttribute("categories")
-    public List<CategoryDTO> populateCategories() {
-        return categoryService.findAll();
-    }
-
     @GetMapping
-    public String listProducts(Model model, @RequestParam(defaultValue = "") String name,
+    public String listProducts(Model model, 
+                               @RequestParam(defaultValue = "") String name,
+                               @RequestParam(required = false) Long categoryId,
+                               @RequestParam(required = false) String priceRange,
+                               @RequestParam(defaultValue = "id") String sortField,
+                               @RequestParam(defaultValue = "desc") String sortDir,
                                @RequestParam(defaultValue = "0") int page,
                                @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        model.addAttribute("products", productService.search(name, pageable));
+        
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortField).ascending() : Sort.by(sortField).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        
+        model.addAttribute("products", productService.advancedSearch(name, categoryId, priceRange, pageable));
+        model.addAttribute("name", name);
+        model.addAttribute("categoryId", categoryId);
+        model.addAttribute("priceRange", priceRange);
+        model.addAttribute("sortField", sortField);
+        model.addAttribute("sortDir", sortDir);
+        model.addAttribute("categories", categoryService.findAll());
+        
         return "products/list";
     }
 
     @GetMapping("/add")
     public String showAddForm(Model model) {
         model.addAttribute("product", new ProductDTO());
+        model.addAttribute("categories", categoryService.findAll());
         return "products/add";
     }
 
     @PostMapping("/add")
     public String addProduct(@Valid @ModelAttribute("product") ProductDTO productDTO,
                              BindingResult result,
-                             @RequestParam("imageFile") MultipartFile imageFile) {
+                             @RequestParam("imageFile") MultipartFile imageFile,
+                             Model model) {
 
         if (imageFile.isEmpty()) {
             result.rejectValue("imageUrl", "NotBlank", "Vui lòng chọn file ảnh cho sản phẩm");
         }
 
         if (result.hasErrors()) {
+            model.addAttribute("categories", categoryService.findAll());
             return "products/add";
         }
 
@@ -68,6 +82,7 @@ public class ProductController {
     public String showEditForm(@PathVariable("id") Long id, Model model) {
         ProductDTO productDTO = productService.findById(id);
         model.addAttribute("product", productDTO);
+        model.addAttribute("categories", categoryService.findAll());
         return "products/edit";
     }
 
@@ -75,8 +90,10 @@ public class ProductController {
     public String editProduct(@PathVariable("id") Long id,
                               @Valid @ModelAttribute("product") ProductDTO productDTO,
                               BindingResult result,
-                              @RequestParam("imageFile") MultipartFile imageFile) {
+                              @RequestParam("imageFile") MultipartFile imageFile,
+                              Model model) {
         if (result.hasErrors()) {
+            model.addAttribute("categories", categoryService.findAll());
             return "products/edit";
         }
 

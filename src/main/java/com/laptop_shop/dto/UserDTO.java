@@ -1,4 +1,5 @@
 package com.laptop_shop.dto;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,4 +18,7 @@ public class UserDTO {
     private String username;
     @NotBlank
     private String password;
+    @NotBlank
+    @Email
+    private String email;
 }

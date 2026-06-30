@@ -1,12 +1,15 @@
 package com.laptop_shop.controller;
 
+import com.laptop_shop.dto.RegisterDTO;
 import com.laptop_shop.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequiredArgsConstructor
@@ -20,24 +23,27 @@ public class AuthController {
     }
 
     @GetMapping("/register")
-    public String showRegisterForm(){
+    public String showRegisterForm(Model model){
+        model.addAttribute("registerDTO", new RegisterDTO());
         return "auth/register";
     }
 
     @PostMapping("/register")
-    public String register(@RequestParam("username") String username,
-                           @RequestParam("email") String email,
-                           @RequestParam("password") String password,
-                           @RequestParam("confirmPassword") String confirmPassword,
+    public String register(@Valid @ModelAttribute("registerDTO") RegisterDTO registerDTO,
+                           BindingResult result,
                            Model model){
         
-        if (!password.equals(confirmPassword)) {
-            model.addAttribute("error", "Mật khẩu xác nhận không khớp!");
+        if (result.hasErrors()) {
+            return "auth/register";
+        }
+        
+        if (!registerDTO.getPassword().equals(registerDTO.getConfirmPassword())) {
+            result.rejectValue("confirmPassword", "error.registerDTO", "Mật khẩu xác nhận không khớp!");
             return "auth/register";
         }
         
         try {
-            userService.register(username, email, password);
+            userService.register(registerDTO.getUsername(), registerDTO.getEmail(), registerDTO.getPassword());
         } catch (Exception e) {
             model.addAttribute("error", e.getMessage());
             return "auth/register";

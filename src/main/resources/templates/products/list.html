@@ -176,6 +176,41 @@
         .btn-logout:hover {
             background-color: #e68a00;
         }
+
+        /* --- CSS MỚI CHO THANH TÌM KIẾM --- */
+        .filter-toolbar {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .filter-group label {
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        .filter-group input, .filter-group select {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 150px;
+        }
+        .filter-actions {
+            display: flex;
+            align-items: flex-end;
+            margin-top: auto;
+        }
     </style>
 </head>
 <body>
@@ -204,11 +239,47 @@
     <a th:href="@{/categories}" class="btn">Quản Lý Danh Mục</a>
 </div>
 
-<form action="/products" method="get" style="margin-bottom: 20px;">
-    <div>
-        <label for="searchInput">Tìm kiếm:</label>
-        <input type="text" id="searchInput" name="name" placeholder="Nhập tên sản phẩm..." th:value="${param.name}"/>
-        <button type="submit" class="btn">Tìm kiếm</button>
+<form action="/products" method="get" class="filter-toolbar">
+    <div class="filter-group">
+        <label for="searchInput">Tên sản phẩm</label>
+        <input type="text" id="searchInput" name="name" placeholder="Nhập tên..." th:value="${name}"/>
+    </div>
+    <div class="filter-group">
+        <label for="categorySelect">Danh mục</label>
+        <select id="categorySelect" name="categoryId">
+            <option value="">Tất cả danh mục</option>
+            <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}" th:selected="${cat.id == categoryId}"></option>
+        </select>
+    </div>
+    <div class="filter-group">
+        <label for="priceRange">Mức giá</label>
+        <select id="priceRange" name="priceRange">
+            <option value="">Tất cả mức giá</option>
+            <option value="0-10000000" th:selected="${priceRange == '0-10000000'}">Dưới 10 triệu</option>
+            <option value="10000000-15000000" th:selected="${priceRange == '10000000-15000000'}">Từ 10 - 15 triệu</option>
+            <option value="15000000-20000000" th:selected="${priceRange == '15000000-20000000'}">Từ 15 - 20 triệu</option>
+            <option value="20000000-25000000" th:selected="${priceRange == '20000000-25000000'}">Từ 20 - 25 triệu</option>
+            <option value="25000000-" th:selected="${priceRange == '25000000-'}">Trên 25 triệu</option>
+        </select>
+    </div>
+    <div class="filter-group">
+        <label for="sortField">Sắp xếp theo</label>
+        <select id="sortField" name="sortField">
+            <option value="id" th:selected="${sortField == 'id'}">Mặc định</option>
+            <option value="price" th:selected="${sortField == 'price'}">Giá cả</option>
+            <option value="name" th:selected="${sortField == 'name'}">Tên sản phẩm</option>
+        </select>
+    </div>
+    <div class="filter-group">
+        <label for="sortDir">Thứ tự</label>
+        <select id="sortDir" name="sortDir">
+            <option value="desc" th:selected="${sortDir == 'desc'}">Giảm dần (Z-A)</option>
+            <option value="asc" th:selected="${sortDir == 'asc'}">Tăng dần (A-Z)</option>
+        </select>
+    </div>
+    <div class="filter-actions">
+        <button type="submit" class="btn btn-edit" style="height: 35px;">Lọc</button>
+        <a th:href="@{/products}" class="btn btn-cancel" style="height: 35px; line-height: 20px; display: inline-block; margin-left: 10px; text-align: center; text-decoration: none;">Xóa</a>
     </div>
     <input type="hidden" name="page" value="0" />
     <input type="hidden" name="size" value="10" />
@@ -251,7 +322,7 @@
 <div class="pagination" th:if="${products.totalPages > 1}">
 
     <a th:if="${!products.first}"
-       th:href="@{/products(name=${param.name}, page=${products.number - 1}, size=${products.size})}"
+       th:href="@{/products(name=${name}, categoryId=${categoryId}, priceRange=${priceRange}, sortField=${sortField}, sortDir=${sortDir}, page=${products.number - 1}, size=${products.size})}"
        class="btn">
         &laquo; Trang trước
     </a>
@@ -261,7 +332,7 @@
     </span>
 
     <a th:if="${!products.last}"
-       th:href="@{/products(name=${param.name}, page=${products.number + 1}, size=${products.size})}"
+       th:href="@{/products(name=${name}, categoryId=${categoryId}, priceRange=${priceRange}, sortField=${sortField}, sortDir=${sortDir}, page=${products.number + 1}, size=${products.size})}"
        class="btn">
         Trang sau &raquo;
     </a>
