@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+
+<!--/* Navbar fragment dùng chung cho tất cả trang customer */-->
+<nav th:fragment="navbar(activePage)" class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/"><span>💻</span> Laptop Shop</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${activePage == 'home' ? 'active' : ''}" href="/">Trang chủ</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${activePage == 'shop' ? 'active' : ''}" href="/shop">Cửa hàng</a>
+                </li>
+                <!-- Admin: Hiện nút vào Dashboard, ẩn các nav dành cho customer -->
+                <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                    <a class="nav-link text-warning fw-semibold" href="/admin/dashboard">
+                        <i class="bi bi-speedometer2"></i> Quản Trị
+                    </a>
+                </li>
+            </ul>
+            <ul class="navbar-nav align-items-center">
+                <!-- Giỏ hàng: CHỈ hiện với USER (không phải ADMIN) -->
+                <li class="nav-item" sec:authorize="!hasRole('ADMIN')">
+                    <a class="nav-link position-relative" href="/cart">
+                        <i class="bi bi-cart3 fs-5"></i>
+                        <span class="ms-1">Giỏ hàng</span>
+                        <span class="badge bg-danger rounded-pill ms-1 position-absolute top-0 start-100 translate-middle"
+                              style="font-size:0.65rem;"
+                              th:if="${@cartServiceImpl.getCount() > 0}"
+                              th:text="${@cartServiceImpl.getCount()}">0</span>
+                    </a>
+                </li>
+
+                <!-- User dropdown (đã đăng nhập) -->
+                <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center gap-1" href="#" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle fs-5"></i>
+                        <span sec:authentication="name">User</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                        <!-- Chỉ USER mới thấy Đơn hàng của tôi -->
+                        <li sec:authorize="hasRole('USER')">
+                            <a class="dropdown-item" href="/my-orders">
+                                <i class="bi bi-bag-check me-2"></i>Đơn hàng của tôi
+                            </a>
+                        </li>
+                        <!-- Admin thấy link Dashboard -->
+                        <li sec:authorize="hasRole('ADMIN')">
+                            <a class="dropdown-item" href="/admin/dashboard">
+                                <i class="bi bi-speedometer2 me-2"></i>Admin Dashboard
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form th:action="@{/logout}" method="post">
+                                <button type="submit" class="dropdown-item text-danger">
+                                    <i class="bi bi-box-arrow-left me-2"></i>Đăng xuất
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- Chưa đăng nhập -->
+                <li class="nav-item" sec:authorize="!isAuthenticated()">
+                    <a class="nav-link" href="/login">
+                        <i class="bi bi-box-arrow-in-right me-1"></i>Đăng nhập
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+</body>
+</html>

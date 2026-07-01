@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/admin-layout}">
+<head><title>Quản Lý Đơn Hàng</title></head>
+<body>
+
+<th:block layout:fragment="page-title">Quản Lý Đơn Hàng</th:block>
+<th:block layout:fragment="page-subtitle">Tất cả đơn hàng trong hệ thống</th:block>
+
+<div layout:fragment="content">
+    <div class="card-section">
+        <div class="card-section-header d-flex justify-content-between align-items-center">
+            <span>Danh Sách Đơn Hàng</span>
+            <span class="text-muted small" th:text="${orders.totalElements} + ' đơn hàng'">0 đơn hàng</span>
+        </div>
+
+        <div th:if="${orders.empty}" class="text-center text-muted py-5">
+            <i class="bi bi-receipt fs-1 d-block mb-3"></i>Chưa có đơn hàng nào trong hệ thống.
+        </div>
+
+        <table class="table admin-table mb-0" th:unless="${orders.empty}">
+            <thead>
+                <tr>
+                    <th style="width:80px">Mã ĐH</th>
+                    <th>Ngày Đặt</th>
+                    <th>Khách Hàng / SĐT</th>
+                    <th>Tổng Tiền</th>
+                    <th>Trạng Thái</th>
+                    <th class="text-center" style="width:120px">Hành Động</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="order : ${orders.content}">
+                    <td><strong th:text="'#' + ${order.id}">#1</strong></td>
+                    <td th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm')}">--</td>
+                    <td>
+                        <div class="fw-semibold" th:text="${order.user != null ? order.user.username : 'Khách Vãng Lai'}">User</div>
+                        <small class="text-muted" th:text="${order.phoneNumber}">0987...</small>
+                    </td>
+                    <td class="text-danger fw-bold"
+                        th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</td>
+                    <td>
+                        <span class="badge badge-pending rounded-pill px-3"    th:if="${order.status == 'PENDING'}"><i class="bi bi-hourglass-split me-1"></i>Chờ xử lý</span>
+                        <span class="badge badge-processing rounded-pill px-3" th:if="${order.status == 'PROCESSING'}"><i class="bi bi-gear me-1"></i>Đang chuẩn bị</span>
+                        <span class="badge badge-shipping rounded-pill px-3"   th:if="${order.status == 'SHIPPING'}"><i class="bi bi-truck me-1"></i>Đang giao</span>
+                        <span class="badge badge-delivered rounded-pill px-3"  th:if="${order.status == 'DELIVERED'}"><i class="bi bi-check2-circle me-1"></i>Đã giao</span>
+                        <span class="badge badge-cancelled rounded-pill px-3"  th:if="${order.status == 'CANCELLED'}"><i class="bi bi-x-circle me-1"></i>Đã hủy</span>
+                    </td>
+                    <td class="text-center">
+                        <a th:href="@{/admin/orders/{id}(id=${order.id})}"
+                           class="btn btn-sm btn-outline-primary" title="Chi tiết">
+                            <i class="bi bi-eye"></i> Chi Tiết
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Pagination -->
+        <div th:if="${orders.totalPages > 1}"
+             class="d-flex justify-content-between align-items-center p-4 border-top">
+            <div class="text-muted small">
+                Trang <strong th:text="${orders.number + 1}">1</strong>
+                / <strong th:text="${orders.totalPages}">10</strong>
+                (Tổng <strong th:text="${orders.totalElements}">100</strong> đơn hàng)
+            </div>
+            <nav>
+                <ul class="pagination mb-0">
+                    <li class="page-item" th:classappend="${orders.first ? 'disabled' : ''}">
+                        <a class="page-link" th:href="@{/admin/orders(sortField=${sortField},sortDir=${sortDir},page=${orders.number - 1})}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item" th:each="i : ${#numbers.sequence(0, orders.totalPages - 1)}"
+                        th:classappend="${orders.number == i ? 'active' : ''}"
+                        th:if="${i >= orders.number - 2 and i <= orders.number + 2}">
+                        <a class="page-link"
+                           th:href="@{/admin/orders(sortField=${sortField},sortDir=${sortDir},page=${i})}"
+                           th:text="${i + 1}">1</a>
+                    </li>
+                    <li class="page-item" th:classappend="${orders.last ? 'disabled' : ''}">
+                        <a class="page-link" th:href="@{/admin/orders(sortField=${sortField},sortDir=${sortDir},page=${orders.number + 1})}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

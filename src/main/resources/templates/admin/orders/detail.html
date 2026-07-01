@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/admin-layout}">
+<head><title>Chi Tiết Đơn Hàng</title></head>
+<body>
+
+<th:block layout:fragment="page-title">Chi Tiết Đơn Hàng
+    <span class="text-primary" th:text="'#' + ${order.id}"></span>
+</th:block>
+<th:block layout:fragment="page-subtitle">Thông tin chi tiết và cập nhật trạng thái</th:block>
+<div layout:fragment="topbar-actions">
+    <a href="/admin/orders" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Danh Sách Đơn
+    </a>
+</div>
+
+<div layout:fragment="content">
+    <div class="row g-4">
+        <!-- Left Column: Order Info + Status Update -->
+        <div class="col-md-4">
+            <!-- Order Info -->
+            <div class="card-section mb-4">
+                <div class="card-section-header"><i class="bi bi-info-circle me-2 text-primary"></i>Thông Tin Đơn Hàng</div>
+                <div class="p-4">
+                    <table class="table table-borderless mb-0 small">
+                        <tr>
+                            <td class="text-muted fw-semibold ps-0" style="width:45%">Mã đơn hàng:</td>
+                            <td class="fw-bold" th:text="'#' + ${order.id}">#1</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted fw-semibold ps-0">Ngày đặt:</td>
+                            <td th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm')}">--</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted fw-semibold ps-0">Tổng tiền:</td>
+                            <td class="text-danger fw-bold"
+                                th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted fw-semibold ps-0">Trạng thái:</td>
+                            <td>
+                                <span class="badge badge-pending rounded-pill"    th:if="${order.status == 'PENDING'}">Chờ xử lý</span>
+                                <span class="badge badge-processing rounded-pill" th:if="${order.status == 'PROCESSING'}">Đang chuẩn bị</span>
+                                <span class="badge badge-shipping rounded-pill"   th:if="${order.status == 'SHIPPING'}">Đang giao</span>
+                                <span class="badge badge-delivered rounded-pill"  th:if="${order.status == 'DELIVERED'}">Đã giao</span>
+                                <span class="badge badge-cancelled rounded-pill"  th:if="${order.status == 'CANCELLED'}">Đã hủy</span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Update Status -->
+            <div class="card-section mb-4">
+                <div class="card-section-header"><i class="bi bi-arrow-repeat me-2 text-warning"></i>Cập Nhật Trạng Thái</div>
+                <div class="p-4">
+                    <div th:if="${order.status == 'CANCELLED'}" class="alert alert-danger py-2 text-center small mb-0">
+                        <i class="bi bi-x-circle me-1"></i>Đơn hàng đã hủy (không thể thay đổi)
+                    </div>
+                    <div th:if="${order.status == 'DELIVERED'}" class="alert alert-success py-2 text-center small mb-0">
+                        <i class="bi bi-check2-circle me-1"></i>Đơn hàng đã giao thành công
+                    </div>
+                    <form th:if="${order.status != 'CANCELLED' and order.status != 'DELIVERED'}"
+                          th:action="@{/admin/orders/{id}/status(id=${order.id})}" method="post">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small">Chọn trạng thái mới:</label>
+                            <select name="status" class="form-select">
+                                <option value="PENDING"    th:selected="${order.status == 'PENDING'}">⏳ Chờ xử lý</option>
+                                <option value="PROCESSING" th:selected="${order.status == 'PROCESSING'}">⚙️ Đang chuẩn bị</option>
+                                <option value="SHIPPING"   th:selected="${order.status == 'SHIPPING'}">🚚 Đang giao hàng</option>
+                                <option value="DELIVERED"  th:selected="${order.status == 'DELIVERED'}">✅ Đã giao hàng</option>
+                                <option value="CANCELLED"  th:selected="${order.status == 'CANCELLED'}">❌ Hủy đơn hàng</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-save me-1"></i>Cập Nhật
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Customer Info -->
+            <div class="card-section">
+                <div class="card-section-header"><i class="bi bi-person-fill me-2 text-success"></i>Thông Tin Giao Hàng</div>
+                <div class="p-4">
+                    <table class="table table-borderless mb-0 small">
+                        <tr>
+                            <td class="text-muted fw-semibold ps-0" style="width:45%">Tài khoản:</td>
+                            <td th:text="${order.user != null ? order.user.username : 'Khách Vãng Lai'}">User</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted fw-semibold ps-0">Số điện thoại:</td>
+                            <td class="fw-semibold" th:text="${order.phoneNumber}">0987...</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted fw-semibold ps-0">Địa chỉ:</td>
+                            <td th:text="${order.shippingAddress}">123 Đường ABC</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Order Items -->
+        <div class="col-md-8">
+            <div class="card-section">
+                <div class="card-section-header"><i class="bi bi-bag-fill me-2 text-primary"></i>Sản Phẩm Đã Mua</div>
+                <div class="p-0">
+                    <table class="table admin-table mb-0">
+                        <thead>
+                            <tr>
+                                <th>Hình Ảnh</th>
+                                <th>Sản Phẩm</th>
+                                <th>Đơn Giá</th>
+                                <th class="text-center">Số Lượng</th>
+                                <th class="text-end">Thành Tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="detail : ${order.orderDetails}">
+                                <td>
+                                    <img th:src="${detail.product.imageUrl}"
+                                         style="width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid #e5e7eb;"
+                                         onerror="this.src='https://placehold.co/56x56?text=img'">
+                                </td>
+                                <td class="fw-semibold" th:text="${detail.product.name}">Tên sản phẩm</td>
+                                <td th:text="${#numbers.formatDecimal(detail.price, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</td>
+                                <td class="text-center">
+                                    <span class="badge badge-processing rounded-pill px-3" th:text="${detail.quantity}">1</span>
+                                </td>
+                                <td class="text-end text-danger fw-bold"
+                                    th:text="${#numbers.formatDecimal(detail.price.multiply(T(java.math.BigDecimal).valueOf(detail.quantity)), 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="4" class="text-end fw-bold">Tổng Cộng:</td>
+                                <td class="text-end text-danger fw-bold fs-5"
+                                    th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

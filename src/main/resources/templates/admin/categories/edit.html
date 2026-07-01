@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/admin-layout}">
+<head><title>Chỉnh Sửa Danh Mục</title></head>
+<body>
+
+<th:block layout:fragment="page-title">Chỉnh Sửa Danh Mục</th:block>
+<th:block layout:fragment="page-subtitle" th:text="${category.name}">Tên danh mục</th:block>
+<div layout:fragment="topbar-actions">
+    <a href="/admin/categories" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Quay Lại
+    </a>
+</div>
+
+<div layout:fragment="content">
+    <div class="row justify-content-center">
+        <div class="col-xl-6">
+            <div class="card-section">
+                <div class="card-section-header"><i class="bi bi-pencil-square me-2 text-primary"></i>Cập Nhật Danh Mục</div>
+                <div class="p-4">
+                    <form th:action="@{/admin/categories/edit/{id}(id=${category.id})}"
+                          th:object="${category}" method="post">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Tên Danh Mục <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" th:field="*{name}">
+                            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Mô Tả</label>
+                            <textarea class="form-control" th:field="*{description}" rows="3"></textarea>
+                        </div>
+                        <div class="d-flex gap-3 pt-3 border-top">
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="bi bi-save me-1"></i>Cập Nhật
+                            </button>
+                            <a href="/admin/categories" class="btn btn-outline-secondary px-4">Hủy</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

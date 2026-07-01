@@ -33,6 +33,15 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<ProductDTO> getTop8LatestProducts() {
+        return productRepository.findTop8ByOrderByIdDesc()
+                .stream()
+                .map(productMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     @Transactional
     public ProductDTO save(ProductDTO productDTO) {
         Product product = productMapper.toEntity(productDTO);
@@ -65,7 +74,7 @@ public class ProductServiceImpl implements ProductService {
     public Page<ProductDTO> advancedSearch(String name, Long categoryId, String priceRange, Pageable pageable) {
         BigDecimal minPrice = null;
         BigDecimal maxPrice = null;
-        
+
         if (priceRange != null && !priceRange.isBlank()) {
             String[] parts = priceRange.split("-");
             if (parts.length > 0 && !parts[0].isEmpty()) {
@@ -75,7 +84,7 @@ public class ProductServiceImpl implements ProductService {
                 maxPrice = new BigDecimal(parts[1]);
             }
         }
-        
+
         return productRepository.advancedSearch(name, categoryId, minPrice, maxPrice, pageable)
                 .map(productMapper::toDTO);
     }

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đặt Hàng - Laptop Shop</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>* { font-family: 'Inter', sans-serif; }</style>
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+
+<div th:replace="~{fragments/navbar :: navbar('')}"></div>
+
+<div class="container py-5 flex-grow-1">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <h2 class="fw-bold mb-4"><i class="bi bi-bag-check me-2 text-primary"></i>Xác Nhận Đặt Hàng</h2>
+
+            <div th:if="${errorMessage}" class="alert alert-danger mb-4" th:text="${errorMessage}"></div>
+
+            <div class="row g-4">
+                <!-- Checkout Form -->
+                <div class="col-md-7">
+                    <div class="card border-0 shadow-sm" style="border-radius:14px;">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-4 border-bottom pb-3">
+                                <i class="bi bi-geo-alt-fill text-primary me-2"></i>Thông Tin Giao Hàng
+                            </h5>
+                            <form th:action="@{/checkout}" method="post">
+                                <div class="mb-3">
+                                    <label for="shippingAddress" class="form-label fw-semibold">Địa chỉ giao hàng <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="shippingAddress"
+                                           name="shippingAddress" required
+                                           placeholder="Số nhà, Tên đường, Quận/Huyện, Tỉnh/TP">
+                                </div>
+                                <div class="mb-4">
+                                    <label for="phoneNumber" class="form-label fw-semibold">Số điện thoại liên hệ <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="phoneNumber"
+                                           name="phoneNumber" required placeholder="09xxxxxxxxx">
+                                </div>
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-success btn-lg fw-bold">
+                                        <i class="bi bi-bag-check me-2"></i>Xác Nhận Đặt Hàng
+                                    </button>
+                                    <a href="/cart" class="btn btn-outline-secondary">
+                                        <i class="bi bi-arrow-left me-1"></i>Quay lại Giỏ hàng
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Summary -->
+                <div class="col-md-5">
+                    <div class="card border-0 shadow-sm" style="border-radius:14px;">
+                        <div class="card-body p-4">
+                            <h6 class="fw-bold mb-3 border-bottom pb-2">Tóm tắt đơn hàng</h6>
+                            <div th:each="item : ${cartItems}" class="d-flex align-items-center gap-2 mb-3">
+                                <img th:src="${item.imageUrl}" style="width:48px;height:48px;object-fit:cover;border-radius:8px;"
+                                     onerror="this.src='https://placehold.co/48x48?text=img'">
+                                <div class="flex-grow-1">
+                                    <div class="small fw-semibold" th:text="${item.productName}">SP</div>
+                                    <div class="small text-muted" th:text="'x' + ${item.quantity}">x1</div>
+                                </div>
+                                <div class="small fw-bold text-danger"
+                                     th:text="${#numbers.formatDecimal(item.totalPrice, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</div>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between fw-bold">
+                                <span>Tổng cộng:</span>
+                                <span class="text-danger fs-5"
+                                      th:text="${#numbers.formatDecimal(totalAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="bg-dark text-light py-4 mt-auto">
+    <div class="container text-center">
+        <p class="mb-0 small">&copy; 2026 Laptop Shop. All rights reserved.</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

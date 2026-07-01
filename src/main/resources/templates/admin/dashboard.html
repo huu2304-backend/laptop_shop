@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layouts/admin-layout}">
+<head>
+    <title>Dashboard</title>
+</head>
+<body>
+
+<th:block layout:fragment="page-title">Dashboard</th:block>
+<th:block layout:fragment="page-subtitle">Tổng quan hệ thống</th:block>
+
+<div layout:fragment="content">
+
+    <!-- Stat Cards Row -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-6 col-xl-3">
+            <div class="stat-card">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="stat-icon" style="background:#eef2ff;">
+                        <i class="bi bi-box-seam-fill text-primary" style="color:#6366f1!important;"></i>
+                    </div>
+                    <span class="badge text-bg-light border">Sản phẩm</span>
+                </div>
+                <div class="fw-bold fs-2" th:text="${totalProducts}">0</div>
+                <div class="text-muted small mt-1">Tổng số sản phẩm</div>
+                <a href="/admin/products" class="btn btn-sm btn-outline-primary mt-3 w-100">Quản lý →</a>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="stat-card">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="stat-icon" style="background:#f0fdf4;">
+                        <i class="bi bi-tags-fill" style="color:#16a34a;font-size:1.5rem;"></i>
+                    </div>
+                    <span class="badge text-bg-light border">Danh mục</span>
+                </div>
+                <div class="fw-bold fs-2" th:text="${totalCategories}">0</div>
+                <div class="text-muted small mt-1">Tổng số danh mục</div>
+                <a href="/admin/categories" class="btn btn-sm btn-outline-success mt-3 w-100">Quản lý →</a>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="stat-card">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="stat-icon" style="background:#fffbeb;">
+                        <i class="bi bi-receipt" style="color:#d97706;font-size:1.5rem;"></i>
+                    </div>
+                    <span class="badge bg-warning text-dark border">Đơn hàng</span>
+                </div>
+                <div class="fw-bold fs-2" th:text="${totalOrders}">0</div>
+                <div class="text-muted small mt-1">
+                    <span class="text-warning fw-semibold" th:text="${pendingOrders}">0</span> chờ xử lý
+                </div>
+                <a href="/admin/orders" class="btn btn-sm btn-outline-warning mt-3 w-100">Quản lý →</a>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="stat-card">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="stat-icon" style="background:#fdf2f8;">
+                        <i class="bi bi-currency-dollar" style="color:#9333ea;font-size:1.5rem;"></i>
+                    </div>
+                    <span class="badge text-bg-light border">Doanh thu</span>
+                </div>
+                <div class="fw-bold fs-4 text-danger" th:text="${#numbers.formatDecimal(totalRevenue, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</div>
+                <div class="text-muted small mt-1">Tổng doanh thu (chưa hủy)</div>
+                <a href="/admin/orders" class="btn btn-sm btn-outline-danger mt-3 w-100">Xem chi tiết →</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row g-4 mb-4">
+        <div class="col-12">
+            <div class="card-section">
+                <div class="card-section-header d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-lightning-charge-fill text-warning me-2"></i>Thao Tác Nhanh</span>
+                </div>
+                <div class="p-4">
+                    <div class="d-flex gap-3 flex-wrap">
+                        <a href="/admin/products/add" class="btn btn-primary px-4">
+                            <i class="bi bi-plus-lg me-2"></i>Thêm Sản Phẩm Mới
+                        </a>
+                        <a href="/admin/categories/add" class="btn btn-success px-4">
+                            <i class="bi bi-plus-lg me-2"></i>Thêm Danh Mục Mới
+                        </a>
+                        <a href="/admin/orders" class="btn btn-warning px-4">
+                            <i class="bi bi-list-check me-2"></i>Xem Đơn Hàng Chờ
+                        </a>
+                        <a href="/shop" target="_blank" class="btn btn-outline-secondary px-4">
+                            <i class="bi bi-shop me-2"></i>Xem Cửa Hàng
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Orders -->
+    <div class="card-section">
+        <div class="card-section-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-clock-history me-2 text-primary"></i>Đơn Hàng Gần Đây</span>
+            <a href="/admin/orders" class="btn btn-sm btn-outline-primary">Xem tất cả</a>
+        </div>
+        <div class="p-0">
+            <div th:if="${#lists.isEmpty(recentOrders)}" class="text-center text-muted py-5">
+                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                Chưa có đơn hàng nào.
+            </div>
+            <table class="table admin-table mb-0" th:unless="${#lists.isEmpty(recentOrders)}">
+                <thead>
+                    <tr>
+                        <th>Mã ĐH</th>
+                        <th>Ngày Đặt</th>
+                        <th>Khách Hàng</th>
+                        <th>Số Điện Thoại</th>
+                        <th>Tổng Tiền</th>
+                        <th>Trạng Thái</th>
+                        <th class="text-center">Hành Động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="order : ${recentOrders}">
+                        <td><strong th:text="'#' + ${order.id}">#1</strong></td>
+                        <td th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm')}">--</td>
+                        <td th:text="${order.user != null ? order.user.username : 'Khách Vãng Lai'}">User</td>
+                        <td th:text="${order.phoneNumber}">0987...</td>
+                        <td class="text-danger fw-bold"
+                            th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</td>
+                        <td>
+                            <span class="badge badge-pending rounded-pill px-3"    th:if="${order.status == 'PENDING'}"><i class="bi bi-hourglass-split me-1"></i>Chờ xử lý</span>
+                            <span class="badge badge-processing rounded-pill px-3" th:if="${order.status == 'PROCESSING'}"><i class="bi bi-gear me-1"></i>Đang chuẩn bị</span>
+                            <span class="badge badge-shipping rounded-pill px-3"   th:if="${order.status == 'SHIPPING'}"><i class="bi bi-truck me-1"></i>Đang giao</span>
+                            <span class="badge badge-delivered rounded-pill px-3"  th:if="${order.status == 'DELIVERED'}"><i class="bi bi-check2-circle me-1"></i>Đã giao</span>
+                            <span class="badge badge-cancelled rounded-pill px-3"  th:if="${order.status == 'CANCELLED'}"><i class="bi bi-x-circle me-1"></i>Đã hủy</span>
+                        </td>
+                        <td class="text-center">
+                            <a th:href="@{/admin/orders/{id}(id=${order.id})}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<th:block layout:fragment="scripts">
+    <script>
+        // Set active menu
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+            document.querySelector('a[href="/admin/dashboard"]')?.classList.add('active');
+        });
+    </script>
+</th:block>
+
+</body>
+</html>

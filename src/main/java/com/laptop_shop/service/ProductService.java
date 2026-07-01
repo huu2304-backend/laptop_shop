@@ -12,6 +12,8 @@ import java.math.BigDecimal;
 public interface ProductService {
     List<ProductDTO> findAll();
 
+    List<ProductDTO> getTop8LatestProducts();
+
     ProductDTO findById(Long id);
 
     ProductDTO save(ProductDTO productDTO);
